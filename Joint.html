@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joint  - Job Discovery for Students</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #6366f1;
+            --secondary: #8b5cf6;
+            --accent: #ec4899;
+            --dark: #1e293b;
+            --light: #f8fafc;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f1f5f9;
+            color: var(--dark);
+            overflow-x: hidden;
+        }
+        
+        .ticket {
+            transform-style: preserve-3d;
+            transition: all 0.5s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            height: 520px;
+            border: 1px solid #000;
+        }
+        
+        .ticket-notch {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background-color: white;
+            border-radius: 50%;
+            top: 50%;
+            transform: translateY(-50%);
+            box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .ticket-notch.left {
+            left: -8px;
+        }
+        
+        .ticket-notch.right {
+            right: -8px;
+        }
+        
+        .fit-score {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            z-index: 10;
+            box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+            font-size: 14px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            margin-top: 16px;
+            width: fit-content;
+            border: 2px solid #6366f1;
+            background: white;
+        }
+        
+        .swipe-right {
+            transform: translateY(150%) rotate(15deg);
+            opacity: 0;
+        }
+        
+        .swipe-left {
+            transform: translateY(-150%) rotate(-15deg);
+            opacity: 0;
+        }
+        
+        .tab-indicator {
+            transition: all 0.3s ease;
+        }
+        
+        .progress-bar {
+            height: 4px;
+            border-radius: 2px;
+            background-color: #e2e8f0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 0.3s ease;
+        }
+        
+        .job-card-content {
+            height: calc(100% - 80px);
+            overflow-y: auto;
+            padding: 16px;
+        }
+        
+        .job-card-footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 12px 16px;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        /* Profile Page Styles */
+        .profile-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1.5rem;
+            border-radius: 0 0 1.5rem 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .profile-header-content {
+            flex: 1;
+        }
+        
+        .profile-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid white;
+            background-color: #e0e7ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-left: 1rem;
+        }
+        
+        .profile-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 1.5rem;
+        }
+        
+        .profile-stat {
+            text-align: center;
+        }
+        
+        .profile-stat-value {
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+        
+        .profile-stat-label {
+            font-size: 0.75rem;
+            opacity: 0.8;
+        }
+        
+        .profile-section {
+            margin-top: 1.5rem;
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .profile-section-title {
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .profile-section-title i {
+            margin-right: 0.5rem;
+            color: var(--primary);
+        }
+        
+        .profile-item {
+            display: flex;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        .profile-item:last-child {
+            border-bottom: none;
+        }
+        
+        .profile-item-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #e0e7ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+            color: var(--primary);
+        }
+        
+        .profile-item-content {
+            flex: 1;
+        }
+        
+        .profile-item-title {
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+        
+        .profile-item-subtitle {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 0.25rem;
+        }
+        
+        /* Alerts Page Styles */
+        .alert-item {
+            display: flex;
+            padding: 1rem;
+            background: white;
+            border-radius: 0.75rem;
+            margin-bottom: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .alert-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1rem;
+}
+        
+        .alert-content {
+            flex: 1;
+        }
+        
+        .alert-title {
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        
+        .alert-message {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 0.25rem;
+        }
+        
+        .alert-time {
+            font-size: 0.625rem;
+            color: #94a3b8;
+            margin-top: 0.25rem;
+        }
+        
+        .unread-badge {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            align-self: center;
+            margin-left: 0.5rem;
+        }
+        
+        /* Filters Page Styles */
+        .filter-section {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .filter-section-title {
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .filter-option {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0;
+        }
+        
+        .filter-option input[type="checkbox"] {
+            margin-right: 0.75rem;
+            width: 18px;
+            height: 18px;
+        }
+        
+        .filter-option label {
+            font-size: 0.875rem;
+        }
+        
+        .filter-range {
+            width: 100%;
+            margin-top: 1rem;
+        }
+        
+        .range-values {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+        
+        .filter-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1.5rem;
+        }
+        
+        /* Hide tab navigation on non-home pages */
+        .hide-tab-nav .tab-navigation {
+            display: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Main App Container -->
+    <div class="max-w-md mx-auto bg-white min-h-screen relative overflow-hidden" id="app-container">
+        <!-- App Header -->
+        <div class="sticky top-0 z-20 bg-white pt-6 px-4 pb-2">
+            <h1 class="text-3xl font-bold text-center text-gray-900">Joint</h1>
+        </div>
+        
+        <!-- Tab Navigation -->
+        <div class="sticky top-20 z-10 bg-white pt-2 px-4 tab-navigation">
+            <div class="flex justify-around relative">
+                <button class="tab-btn active px-4 py-2 font-medium text-indigo-600" data-tab="discover">Discover</button>
+                <button class="tab-btn px-4 py-2 font-medium text-gray-500" data-tab="saved">Saved</button>
+                <button class="tab-btn px-4 py-2 font-medium text-gray-500" data-tab="applied">Applied</button>
+                <div class="tab-indicator absolute bottom-0 left-0 h-1 bg-indigo-500 rounded-full transition-all duration-300" style="width: 33.33%; transform: translateX(0%);"></div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <main class="p-4 pb-20">
+            <!-- Discover Tab Content -->
+            <div id="discover" class="tab-content active">
+                <!-- Job Tickets Container -->
+                <div class="relative" style="height: 540px;">
+                    <!-- Sample Job Ticket 1 (Active) -->
+                    <div class="ticket bg-white rounded-lg relative cursor-grab active:cursor-grabbing" id="ticket-1">
+                        <div class="ticket-notch left"></div>
+                        <div class="ticket-notch right"></div>
+                        
+                        <div class="job-card-content">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h3 class="font-bold text-lg">Junior UX Designer</h3>
+                                    <p class="text-sm text-gray-500">TechSolutions Inc.</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-semibold text-indigo-600">$55k - $65k</p>
+                                    <p class="text-xs text-gray-500">San Francisco, CA</p>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <div class="flex flex-wrap gap-2 mb-3">
+                                    <span class="px-2 py-1 bg-indigo-50 text-indigo-600 text-xs rounded-full">UI/UX</span>
+                                    <span class="px-2 py-1 bg-indigo-50 text-indigo-600 text-xs rounded-full">Figma</span>
+                                    <span class="px-2 py-1 bg-indigo-50 text-indigo-600 text-xs rounded-full">Wireframing</span>
+                                </div>
+                                <p class="text-sm text-gray-700 mb-4">We're looking for a creative Junior UX Designer to join our growing team. You'll work on exciting projects for major clients, creating intuitive user experiences.</p>
+                                
+                                <div class="mb-4">
+                                    <h4 class="font-semibold text-sm mb-2">Requirements:</h4>
+                                    <ul class="text-xs text-gray-600 space-y-1">
+                                        <li class="flex items-start">
+                                            <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                                            <span>Portfolio demonstrating design skills</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fas fa-check-circle text-green-500 mr-2 mt=0.5"></i>
+                                            <span>Understanding of user-centered design</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fas fa-check-circle text-green-500 mr-2 mt=0.5"></i>
+                                            <span>Familiarity with Figma or similar tools</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="font-semibold text-sm mb-2">What we offer:</h4>
+                                    <ul class="text-xs text-gray-600 space-y=1">
+                                        <li class="flex items-start">
+                                            <i class="fas fa-plus-circle text-blue-500 mr-2 mt=0.5"></i>
+                                            <span>Mentorship from senior designers</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fas fa-plus-circle text-blue-500 mr-2 mt=0.5"></i>
+                                            <span>Flexible work arrangements</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fas fa-plus-circle text-blue-500 mr-2 mt=0.5"></i>
+                                            <span>Career growth opportunities</span>
+                                        </li>
+                                    </ul>
+                                    <!-- Moved Fit Score here -->
+                                    <div class="fit-score text-indigo-600">
+                                        <i class="fas fa-star mr-2"></i> Your Fit: 92%
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="job-card-footer">
+                            <div class="flex justify-between items-center">
+                                <button class="swipe-left-btn bg-red-100 text-red-500 px-4 py-2 rounded-full text-sm font-medium">
+                                    <i class="fas fa-times mr-1"></i> Not Interested
+                                </button>
+                                <button class="bg-gray-100 text-gray-700 px=4 py=2 rounded-full text-sm font-medium">
+                                    <i class="far fa-bookmark mr-1"></i> Save
+                                </button>
+                                <button class="swipe-right-btn bg-green-100 text-green-500 px=4 py=2 rounded-full text-sm font-medium">
+                                    <i class="fas fa-check mr-1"></i> Apply Now
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sample Job Ticket 2 (Next in Stack) -->
+                    <div class="ticket bg-white rounded-lg relative absolute top-0 left-0 right-0 opacity-90 scale-95 -z-10" id="ticket-2">
+                        <div class="ticket-notch left"></div>
+                        <div class="ticket-notch right"></div>
+                        
+                        <div class="job-card-content">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h3 class="font-bold text-lg">Marketing Associate</h3>
+                                    <p class="text-sm text-gray-500">BrandVision</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-semibold text-indigo-600">$48k - $58k</p>
+                                    <p class="text-xs text-gray-500">Remote</p>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <div class="flex flex-wrap gap-2 mb-3">
+                                    <span class="px-2 py-1 bg-purple-50 text-purple-600 text-xs rounded-full">Social Media</span>
+                                    <span class="px-2 py-1 bg-purple-50 text-purple-600 text-xs rounded-full">Content Creation</span>
+                                    <span class="px-2 py-1 bg-purple-50 text-purple-600 text-xs rounded-full">Analytics</span>
+                                </div>
+                                <p class="text-sm text-gray-700 mb-4">Join our marketing team to help build brand awareness through creative campaigns. Ideal for recent graduates with internship experience.</p>
+                                
+                                <div class="mb-4">
+                                    <h4 class="font-semibold text-sm mb-2">Requirements:</h4>
+                                    <ul class="text-xs text-gray-600 space-y-1">
+                                        <li class="flex items-start">
+                                            <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                                            <span>1+ years marketing experience</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                                            <span>Social media management skills</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                                            <span>Excellent written communication</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="font-semibold text-sm mb-2">What we offer:</h4>
+                                    <ul class="text-xs text-gray-600 space-y-1">
+                                        <li class="flex items-start">
+                                            <i class="fas fa-plus-circle text-blue-500 mr-2 mt-0.5"></i>
+                                            <span>Work from anywhere</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fas fa-plus-circle text-blue-500 mr-2 mt-0.5"></i>
+                                            <span>Performance bonuses</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fas fa-plus-circle text-blue-500 mr-2 mt-0.5"></i>
+                                            <span>Creative freedom</span>
+                                        </li>
+                                    </ul>
+                                    <!-- Moved Fit Score here -->
+                                    <div class="fit-score text-yellow-600 border-yellow-500">
+                                        <i class="fas fa-star mr-2"></i> Your Fit: 78%
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="job-card-footer">
+                            <div class="flex justify-between items-center">
+                                <button class="swipe-left-btn bg-red-100 text-red-500 px-4 py-2 rounded-full text-sm font-medium">
+                                    <i class="fas fa-times mr-1"></i> Not Interested
+                                </button>
+                                <button class="bg-gray-100 text-gray-700 px-4 py-2 rounded-full text-sm font-medium">
+                                    <i class="far fa-bookmark mr-1"></i> Save
+                                </button>
+                                <button class="swipe-right-btn bg-green-100 text-green-500 px-4 py-2 rounded-full text-sm font-medium">
+                                    <i class="fas fa-check mr-1"></i> Apply Now
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Saved Tab Content -->
+            <div id="saved" class="tab-content hidden">
+                <div class="text-center mb-6">
+                    <h2 class="text-lg font-semibold">Your Saved Opportunities</h2>
+                </div>
+                
+                <div class="space-y-4">
+                    <!-- Saved Job 1 -->
+                    <div class="ticket bg-white rounded-lg relative h-auto">
+                        <div class="job-card-content">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h3 class="font-bold">Data Analyst Intern</h3>
+                                    <p class="text-sm text-gray-500">DataCorp</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-semibold text-indigo-600">$25/hr</p>
+                                    <p class="text-xs text-gray-500">New York, NY</p>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <div class="flex space-x-2">
+                                    <span class="px-2 py-1 bg-blue-50 text-blue-600 text-xs rounded-full">SQL</span>
+                                    <span class="px-2 py-1 bg-blue-50 text-blue-600 text-xs rounded-full">Python</span>
+                                </div>
+                                <div class="text-indigo-600">
+                                    <span class="text-xs font-medium">Saved 3 days ago</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Saved Job 2 -->
+                    <div class="ticket bg-white rounded-lg relative h-auto">
+                        <div class="job-card-content">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h3 class="font-bold">Frontend Developer</h3>
+                                    <p class="text-sm text-gray-500">WebCraft</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-semibold text-indigo-600">$60k - $70k</p>
+                                    <p class="text-xs text-gray-500">Remote</p>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <div class="flex space-x-2">
+                                    <span class="px-2 py-1 bg-green-50 text-green-600 text-xs rounded-full">React</span>
+                                    <span class="px-2 py-1 bg-green-50 text-green-600 text-xs rounded-full">JavaScript</span>
+                                </div>
+                                <div class="text-indigo-600">
+                                    <span class="text-xs font-medium">Saved 1 week ago</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-8">
+                    <button onclick="switchToTab('discover')" class="border border-indigo-600 text-indigo-600 px-6 py-2 rounded-full font-medium">
+                        <i class="fas fa-search mr-2"></i> Browse More Jobs
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Applied Tab Content -->
+            <div id="applied" class="tab-content hidden">
+                <div class="text-center mb-6">
+                    <h2 class="text-lg font-semibold">Your Applications</h2>
+                </div>
+                
+                <div class="space-y-4">
+                    <!-- Applied Job 1 -->
+                    <div class="ticket bg-white rounded-lg relative h-auto">
+                        <div class="job-card-content">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h3 class="font-bold">Product Manager</h3>
+                                    <p class="text-sm text-gray-500">InnovateTech</p>
+                                </div>
+                                <div class="text-right">
+                                    <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">Pending</span>
+                                    <p class="text-xs text-gray-500 mt-1">Applied 3 days ago</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center text-sm">
+                                <div class="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center mr-2">
+                                    <i class="fas fa-user text-indigo-600 text-xs"></i>
+                                </div>
+                                <span class="text-xs">Recruiter viewed your profile</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Applied Job 2 -->
+                    <div class="ticket bg-white rounded-lg relative h-auto">
+                        <div class="job-card-content">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h3 class="font-bold">HR Coordinator</h3>
+                                    <p class="text-sm text-gray-500">PeopleFirst</p>
+                                </div>
+                                <div class="text-right">
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Interview</span>
+                                    <p class="text-xs text-gray-500 mt-1">Applied 1 week ago</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center text-sm">
+                                <div class="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center mr-2">
+                                    <i class="fas fa-calendar text-indigo-600 text-xs"></i>
+                                </div>
+                                <span class="text-xs">Interview scheduled for June 15</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt=8">
+                    <button onclick="switchToTab('discover')" class="border border-indigo-600 text-indigo-600 px=6 py=2 rounded-full font-medium">
+                        <i class="fas fa-search mr=2"></i> Find Similar Jobs
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Profile Tab Content (hidden by default) -->
+            <div id="profile" class="tab-content hidden">
+                <div class="profile-header">
+                    <div class="profile-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="profile-header-content">
+                        <h2 class="text-xl font-bold">Alex Johnson</h2>
+                        <p class="text-sm opacity-90">Computer Science Student</p>
+                    </div>
+                </div>
+                
+                <div class="profile-stats">
+                    <div class="profile-stat">
+                        <div class="profile-stat-value">12</div>
+                        <div class="profile-stat-label">Pending</div>
+                    </div>
+                    <div class="profile-stat">
+                        <div class="profile-stat-value">24</div>
+                        <div class="profile-stat-label">Applied</div>
+                    </div>
+                    <div class="profile-stat">
+                        <div class="profile-stat-value">3</div>
+                        <div class="profile-stat-label">Offers</div>
+                    </div>
+                </div>
+                
+                <div class="profile-section">
+                    <div class="profile-section-title">
+                        <i class="fas fa-user-graduate"></i>
+                        <span>Education</span>
+                    </div>
+                    <div class="profile-item">
+                        <div class="profile-item-icon">
+                            <i class="fas fa-university"></i>
+                        </div>
+                        <div class="profile-item-content">
+                            <div class="profile-item-title">University of Technology</div>
+                            <div class="profile-item-subtitle">B.Sc. Computer Science, 2021-2025</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="profile-section">
+                    <div class="profile-section-title">
+                        <i class="fas fa-briefcase"></i>
+                        <span>Experience</span>
+                    </div>
+                    <div class="profile-item">
+                        <div class="profile-item-icon">
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <div class="profile-item-content">
+                            <div class="profile-item-title">Software Developer Intern</div>
+                            <div class="profile-item-subtitle">TechSolutions Inc. • Summer 2023</div>
+                        </div>
+                    </div>
+                    <div class="profile-item">
+                        <div class="profile-item-icon">
+                            <i class="fas fa-laptop-code"></i>
+                        </div>
+                        <div class="profile-item-content">
+                            <div class="profile-item-title">Freelance Web Developer</div>
+                            <div class="profile-item-subtitle">Self-employed • 2020-Present</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="profile-section">
+                    <div class="profile-section-title">
+                        <i class="fas fa-cogs"></i>
+                        <span>Skills</span>
+                    </div>
+                    <div class="flex flex-wrap gap-2 mt-2">
+                        <span class="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs rounded-full">JavaScript</span>
+                        <span class="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs rounded-full">React</span>
+                        <span class="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs rounded-full">Node.js</span>
+                        <span class="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs rounded-full">Python</span>
+                        <span class="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs rounded-full">SQL</span>
+                        <span class="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs rounded-full">UI/UX</span>
+                    </div>
+                </div>
+                
+                <div class="profile-section">
+                    <div class="profile-section-title">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </div>
+                    <div class="profile-item">
+                        <div class="profile-item-icon">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <div class="profile-item-content">
+                            <div class="profile-item-title">Notification Preferences</div>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400"></i>
+                    </div>
+                    <div class="profile-item">
+                        <div class="profile-item-icon">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <div class="profile-item-content">
+                            <div class="profile-item-title">Privacy Settings</div>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400"></i>
+                    </div>
+                    <div class="profile-item">
+                        <div class="profile-item-icon">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </div>
+                        <div class="profile-item-content">
+                            <div class="profile-item-title">Log Out</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Alerts Tab Content (hidden by default) -->
+            <div id="alerts" class="tab-content hidden">
+                <div class="text-center mb-6">
+                    <h2 class="text-lg font-semibold">Your Alerts</h2>
+                </div>
+                
+                <div class="space-y-3">
+                    <!-- Alert 1 -->
+                    <div class="alert-item">
+                        <div class="alert-icon bg-indigo-100 text-indigo-600">
+                            <i class="fas fa-briefcase"></i>
+                        </div>
+                        <div class="alert-content">
+                            <div class="alert-title">New Job Match: UX Designer</div>
+                            <div class="alert-message">TechSolutions has a new position that matches your profile</div>
+                            <div class="alert-time">2 hours ago</div>
+                        </div>
+                        <div class="unread-badge"></div>
+                    </div>
+                    
+                    <!-- Alert 2 -->
+                    <div class="alert-item">
+                        <div class="alert-icon bg-green-100 text-green-600">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="alert-content">
+                            <div class="alert-title">Application Viewed</div>
+                            <div class="alert-message">InnovateTech has viewed your application for Product Manager</div>
+                            <div class="alert-time">1 day ago</div>
+                        </div>
+                        <div class="unread-badge"></div>
+                    </div>
+                    
+                    <!-- Alert 3 -->
+                    <div class="alert-item">
+                        <div class="alert-icon bg-yellow-100 text-yellow-600">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="alert-content">
+                            <div class="alert-title">Interview Reminder</div>
+                            <div class="alert-message">Your interview with PeopleFirst is scheduled for tomorrow at 2 PM</div>
+                            <div class="alert-time">2 days ago</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Alert 4 -->
+                    <div class="alert-item">
+                        <div class="alert-icon bg-blue-100 text-blue-600">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <div class="alert-content">
+                            <div class="alert-title">Recruiter Message</div>
+                            <div class="alert-message">John from DataCorp wants to connect about a potential opportunity</div>
+                            <div class="alert-time">3 days ago</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Alert 5 -->
+                    <div class="alert-item">
+                        <div class="alert-icon bg-purple-100 text-purple-600">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="alert-content">
+                            <div class="alert-title">Profile Boosted</div>
+                            <div class="alert-message">Your profile is now being shown to more recruiters</div>
+                            <div class="alert-time">1 week ago</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Filters Tab Content (hidden by default) -->
+            <div id="filters" class="tab-content hidden">
+                <div class="text-center mb-6">
+                    <h2 class="text-lg font-semibold">Filter Jobs</h2>
+                </div>
+                
+                <div class="filter-section">
+                    <div class="filter-section-title">
+                        <span>Job Type</span>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="full-time" checked>
+                        <label for="full-time">Full-time</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="part-time" checked>
+                        <label for="part-time">Part-time</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="internship" checked>
+                        <label for="internship">Internship</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="contract" checked>
+                        <label for="contract">Contract</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="remote" checked>
+                        <label for="remote">Remote</label>
+                    </div>
+                </div>
+                
+                <div class="filter-section">
+                    <div class="filter-section-title">
+                        <span>Salary Range</span>
+                    </div>
+                    <input type="range" min="0" max="200" value="50" class="filter-range">
+                    <div class="range-values">
+                        <span>$0</span>
+                        <span>$50k+</span>
+                        <span>$100k+</span>
+                        <span>$150k+</span>
+                        <span>$200k+</span>
+                    </div>
+                </div>
+                
+                <div class="filter-section">
+                    <div class="filter-section-title">
+                        <span>Experience Level</span>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="entry-level" checked>
+                        <label for="entry-level">Entry Level</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="mid-level" checked>
+                        <label for="mid-level">Mid Level</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="senior-level" checked>
+                        <label for="senior-level">Senior Level</label>
+                    </div>
+                </div>
+                
+                <div class="filter-section">
+                    <div class="filter-section-title">
+                        <span>Location</span>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="on-site" checked>
+                        <label for="on-site">On-site</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="hybrid" checked>
+                        <label for="hybrid">Hybrid</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="remote-location" checked>
+                        <label for="remote-location">Remote</label>
+                    </div>
+                </div>
+                
+                <div class="filter-actions">
+                    <button onclick="switchToTab('discover')" class="border border-indigo-600 text-indigo-600 px-6 py-2 rounded-full font-medium">
+                        Cancel
+                    </button>
+                    <button onclick="switchToTab('discover')" class="bg-indigo-600 text-white px-6 py-2 rounded-full font-medium">
+                        Apply Filters
+                    </button>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Bottom Navigation -->
+        <nav class="fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t border-gray-200 flex justify-around items-center p-3 max-w-md mx-auto">
+            <button class="flex flex-col items-center text-indigo-600" onclick="switchToTab('discover')">
+                <i class="fas fa-home text-lg"></i>
+                <span class="text-xs mt-1">Home</span>
+            </button>
+            <button class="flex flex-col items-center text-gray-500" onclick="switchToTab('filters')">
+                <i class="fas fa-sliders-h text-lg"></i>
+                <span class="text-xs mt-1">Filters</span>
+            </button>
+            <button class="flex flex-col items-center text-gray-500" onclick="switchToTab('alerts')">
+                <div class="relative">
+                    <i class="fas fa-bell text-lg"></i>
+                    <span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">3</span>
+                </div>
+                <span class="text-xs mt-1">Alerts</span>
+            </button>
+            <button class="flex flex-col items-center text-gray-500" onclick="switchToTab('profile')">
+                <i class="fas fa-user text-lg"></i>
+                <span class="text-xs mt-1">Profile</span>
+            </button>
+        </nav>
+    </div>
+
+    <script>
+        // Tab Switching Functionality
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const tabIndicator = document.querySelector('.tab-indicator');
+        const appContainer = document.getElementById('app-container');
+        
+        function switchToTab(tabId) {
+            // Update active tab button
+            tabButtons.forEach(btn => {
+                btn.classList.remove('active', 'text-indigo-600');
+                btn.classList.add('text-gray-500');
+                
+                if (btn.getAttribute('data-tab') === tabId) {
+                    btn.classList.add('active', 'text-indigo-600');
+                    btn.classList.remove('text-gray-500');
+                }
+            });
+            
+            // Update tab content
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+                content.classList.add('hidden');
+                
+                if (content.id === tabId) {
+                    content.classList.add('active');
+                    content.classList.remove('hidden');
+                }
+            });
+            
+            // Move tab indicator
+            if (tabId === 'discover') {
+                tabIndicator.style.transform = 'translateX(0%)';
+            } else if (tabId === 'saved') {
+                tabIndicator.style.transform = 'translateX(100%)';
+            } else if (tabId === 'applied') {
+                tabIndicator.style.transform = 'translateX(200%)';
+            } else {
+                // For profile, alerts, and filters tabs, keep the indicator on the last visible tab
+                tabIndicator.style.transform = 'translateX(200%)';
+            }
+            
+            // Show/hide tab navigation based on current tab
+            if (tabId === 'discover' || tabId === 'saved' || tabId === 'applied') {
+                appContainer.classList.remove('hide-tab-nav');
+            } else {
+                appContainer.classList.add('hide-tab-nav');
+            }
+        }
+        
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const tabId = button.getAttribute('data-tab');
+                switchToTab(tabId);
+            });
+        });
+        
+        // Ticket Swipe Functionality (vertical)
+        const activeTicket = document.getElementById('ticket-1');
+        const nextTicket = document.getElementById('ticket-2');
+        const swipeLeftBtn = activeTicket.querySelector('.swipe-left-btn');
+        const swipeRightBtn = activeTicket.querySelector('.swipe-right-btn');
+        
+        let isDragging = false;
+        let startPos = 0;
+        let currentTranslate = 0;
+        let currentRotation = 0;
+        
+        activeTicket.addEventListener('mousedown', startDrag);
+        activeTicket.addEventListener('touchstart', startDrag);
+        
+        activeTicket.addEventListener('mousemove', drag);
+        activeTicket.addEventListener('touchmove', drag);
+        
+        activeTicket.addEventListener('mouseup', endDrag);
+        activeTicket.addEventListener('touchend', endDrag);
+        activeTicket.addEventListener('mouseleave', endDrag);
+        
+        swipeLeftBtn.addEventListener('click', () => {
+            activeTicket.classList.add('swipe-left');
+            setTimeout(() => {
+                activeTicket.style.display = 'none';
+                nextTicket.classList.remove('opacity-90', 'scale-95', '-z-10');
+                nextTicket.classList.add('cursor-grab');
+            }, 500);
+        });
+        
+        swipeRightBtn.addEventListener('click', () => {
+            activeTicket.classList.add('swipe-right');
+            setTimeout(() => {
+                activeTicket.style.display = 'none';
+                nextTicket.classList.remove('opacity-90', 'scale-95', '-z-10');
+                nextTicket.classList.add('cursor-grab');
+            }, 500);
+        });
+        
+        function startDrag(e) {
+            if (e.type === 'touchstart') {
+                startPos = e.touches[0].clientY;
+            } else {
+                startPos = e.clientY;
+                e.preventDefault();
+            }
+            isDragging = true;
+            activeTicket.style.transition = 'none';
+        }
+        
+        function drag(e) {
+            if (!isDragging) return;
+            
+            let currentPos;
+            if (e.type === 'touchmove') {
+                currentPos = e.touches[0].clientY;
+            } else {
+                currentPos = e.clientY;
+            }
+            
+            const diff = currentPos - startPos;
+            currentTranslate = diff;
+            currentRotation = diff * 0.1;
+            
+            activeTicket.style.transform = `translateY(${currentTranslate}px) rotate(${currentRotation}deg)`;
+            
+            // Change opacity based on drag distance
+            const opacity = 1 - Math.min(Math.abs(diff) / 150, 1) * 0.5;
+            activeTicket.style.opacity = opacity;
+        }
+        
+        function endDrag() {
+            if (!isDragging) return;
+            isDragging = false;
+            
+            // Determine if swipe was significant enough
+            if (Math.abs(currentTranslate) > 100) {
+                if (currentTranslate > 0) {
+                    activeTicket.classList.add('swipe-right');
+                } else {
+                    activeTicket.classList.add('swipe-left');
+                }
+                
+                setTimeout(() => {
+                    activeTicket.style.display = 'none';
+                    nextTicket.classList.remove('opacity-90', 'scale-95', '-z-10');
+                    nextTicket.classList.add('cursor-grab');
+                }, 500);
+            } else {
+                // Return to original position
+                activeTicket.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
+                activeTicket.style.transform = 'translateY(0) rotate(0)';
+                activeTicket.style.opacity = '1';
+            }
+            
+            // Reset values
+            currentTranslate = 0;
+            currentRotation = 0;
+        }
+    </script>
+</body>
+</html>
